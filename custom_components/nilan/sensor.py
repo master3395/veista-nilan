@@ -10,8 +10,8 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import (
-    CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
+    UnitOfRatio,
     UnitOfTemperature,
     UnitOfTime,
 )
@@ -237,7 +237,7 @@ ATTRIBUTE_TO_SENSORS = {
     "get_co2_sensor_value": [
         Map(
             "co2_sensor",
-            CONCENTRATION_PARTS_PER_MILLION,
+            UnitOfRatio.PARTS_PER_MILLION,
             SensorDeviceClass.CO2,
             SensorStateClass.MEASUREMENT,
             None,
@@ -303,6 +303,72 @@ ATTRIBUTE_TO_SENSORS = {
     "get_days_to_air_filter_change": [
         Map(
             "days_to_air_filter_change",
+            UnitOfTime.DAYS,
+            None,
+            SensorStateClass.MEASUREMENT,
+            None,
+            "mdi:calendar-end",
+            True,
+        )
+    ],
+    "get_filter_interval_inlet": [
+        Map(
+            "filter_interval_inlet",
+            UnitOfTime.DAYS,
+            None,
+            SensorStateClass.MEASUREMENT,
+            EntityCategory.DIAGNOSTIC,
+            "mdi:filter-variant",
+            True,
+        )
+    ],
+    "get_filter_interval_exhaust": [
+        Map(
+            "filter_interval_exhaust",
+            UnitOfTime.DAYS,
+            None,
+            SensorStateClass.MEASUREMENT,
+            EntityCategory.DIAGNOSTIC,
+            "mdi:filter-variant",
+            True,
+        )
+    ],
+    "get_days_since_inlet_filter_change": [
+        Map(
+            "days_since_inlet_filter_change",
+            UnitOfTime.DAYS,
+            None,
+            SensorStateClass.MEASUREMENT,
+            None,
+            "mdi:calendar-start",
+            True,
+        )
+    ],
+    "get_days_to_inlet_filter_change": [
+        Map(
+            "days_to_inlet_filter_change",
+            UnitOfTime.DAYS,
+            None,
+            SensorStateClass.MEASUREMENT,
+            None,
+            "mdi:calendar-end",
+            True,
+        )
+    ],
+    "get_days_since_exhaust_filter_change": [
+        Map(
+            "days_since_exhaust_filter_change",
+            UnitOfTime.DAYS,
+            None,
+            SensorStateClass.MEASUREMENT,
+            None,
+            "mdi:calendar-start",
+            True,
+        )
+    ],
+    "get_days_to_exhaust_filter_change": [
+        Map(
+            "days_to_exhaust_filter_change",
             UnitOfTime.DAYS,
             None,
             SensorStateClass.MEASUREMENT,
@@ -618,7 +684,7 @@ async def async_setup_entry(HomeAssistant, config_entry, async_add_entities):
                         m.state_class,
                         m.entity_category,
                         m.icon,
-                        m.enabled,
+                        m.enabled and device.supports_attribute(attribute),
                     )
                     for m in maps
                 ]
@@ -651,7 +717,9 @@ class NilanCTS602Sensor(SensorEntity, NilanEntity):
         self._attr_entity_category = entity_category
         self._attr_icon = icon
         self._name = name
-        self._attr_entity_registry_enabled_default = enabled
+        self._attr_entity_registry_enabled_default = (
+            enabled and device.supports_attribute(attribute)
+        )
         self._attr_has_entity_name = True
         self._attr_translation_key = self._name
         self._attr_unique_id = self.make_unique_id(self._name)

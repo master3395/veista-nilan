@@ -20,6 +20,11 @@ from .capabilities import (
 )
 from .device_map_cts700_nordic import CTS700_NORDIC_ENTITY_MAP
 from .modbus_hub_util import build_modbus_hub_name, wait_for_modbus_connected
+from .register_probe import (
+    PROBE_SPECS,
+    deserialize_dead_registers,
+    run_register_probe,
+)
 from .registers import CTS700NordicRegisters as Reg
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,6 +49,7 @@ class DeviceCTS700Nordic:
         host_port,
         unit_id,
         hub_name: str | None = None,
+        stored_dead_registers: list | None = None,
     ) -> None:
         """Create Nordic hybrid device."""
         self.hass = hass
@@ -75,6 +81,10 @@ class DeviceCTS700Nordic:
         self._attributes = {}
         self._board_type = "CTS700_NORDIC"
         self._capabilities: frozenset[str] = frozenset()
+        self._dead_registers: set[tuple[str, int]] = set()
+        self._unsupported_attributes: set[str] = set()
+        self._stored_dead_registers = stored_dead_registers
+        self._probe_ran = False
 
     async def async_close(self):
         """Close modbus connection."""
@@ -107,6 +117,37 @@ class DeviceCTS700Nordic:
         outdoor = await self.get_t1_intake_temperature()
         if outdoor is not None:
             _LOGGER.debug("CTS700 Nordic outdoor probe %.1f C", outdoor)
+        if self._stored_dead_registers is not None:
+            try:
+                self._dead_registers = deserialize_dead_registers(
+                    self._stored_dead_registers
+                )
+            except (TypeError, ValueError):
+                _LOGGER.warning(
+                    "Stored dead-register data invalid; re-probing"
+                )
+                self._stored_dead_registers = None
+            if self._stored_dead_registers is not None:
+                self._unsupported_attributes = {
+                    attr
+                    for attr, regs in PROBE_SPECS["CTS700_NORDIC"].items()
+                    if all(
+                        (kind, address) in self._dead_registers
+                        for kind, address in regs
+                    )
+                }
+                _LOGGER.debug(
+                    "Loaded %d dead registers from stored config",
+                    len(self._dead_registers),
+                )
+        if self._stored_dead_registers is None:
+            try:
+                await run_register_probe(self, PROBE_SPECS["CTS700_NORDIC"])
+                self._probe_ran = True
+            except Exception:  # noqa: BLE001 — probe must never fail setup
+                _LOGGER.warning(
+                    "CTS700 Nordic register probe failed; continuing with core-only setup"
+                )
         self._device_sw_ver = "CTS700 Nordic/Polar/Arctic hybrid map"
         _LOGGER.debug(
             "CTS700 Nordic attributes=%s capabilities=%s",
@@ -148,8 +189,14 @@ class DeviceCTS700Nordic:
         """Return device attributes."""
         return self._attributes
 
+    def supports_attribute(self, name: str) -> bool:
+        """True when the probed registers for this attribute are alive."""
+        return name not in self._unsupported_attributes
+
     async def _read_holding(self, address: int) -> int | None:
         """Read one holding register as signed int."""
+        if ("holding", address) in self._dead_registers:
+            return None
         result = await self._modbus.async_pb_call(
             self._unit_id, address, 1, "holding"
         )
@@ -163,6 +210,8 @@ class DeviceCTS700Nordic:
 
     async def _read_holding_unsigned(self, address: int) -> int | None:
         """Read one holding register as unsigned int."""
+        if ("holding", address) in self._dead_registers:
+            return None
         result = await self._modbus.async_pb_call(
             self._unit_id, address, 1, "holding"
         )
@@ -176,6 +225,8 @@ class DeviceCTS700Nordic:
 
     async def _read_input(self, address: int) -> int | None:
         """Read one input register as signed int."""
+        if ("input", address) in self._dead_registers:
+            return None
         result = await self._modbus.async_pb_call(
             self._unit_id, address, 1, "input"
         )
@@ -189,6 +240,8 @@ class DeviceCTS700Nordic:
 
     async def _read_input_unsigned(self, address: int) -> int | None:
         """Read one input register as unsigned int."""
+        if ("input", address) in self._dead_registers:
+            return None
         result = await self._modbus.async_pb_call(
             self._unit_id, address, 1, "input"
         )
@@ -490,9 +543,40 @@ class DeviceCTS700Nordic:
             return None
         return float(value)
 
-    async def get_days_to_air_filter_change(self) -> int | None:
-        """Days until filter change."""
+    async def get_days_to_inlet_filter_change(self) -> int | None:
+        """Days until inlet filter change (holding 1328 remaining; 20103 fallback)."""
+        remaining = await self._read_holding_unsigned(Reg.filter_remaining_inlet)
+        if remaining is not None:
+            return remaining
         return await self._read_holding_unsigned(Reg.filter_days)
+
+    async def get_days_since_inlet_filter_change(self) -> int | None:
+        """Days since last inlet filter change (interval - remaining)."""
+        interval = await self._read_holding_unsigned(Reg.filter_interval_inlet)
+        remaining = await self._read_holding_unsigned(Reg.filter_remaining_inlet)
+        if interval is None or remaining is None:
+            return None
+        return max(0, interval - remaining)
+
+    async def get_days_to_exhaust_filter_change(self) -> int | None:
+        """Days until exhaust filter change (holding 1329 remaining)."""
+        return await self._read_holding_unsigned(Reg.filter_remaining_exhaust)
+
+    async def get_days_since_exhaust_filter_change(self) -> int | None:
+        """Days since last exhaust filter change (interval - remaining)."""
+        interval = await self._read_holding_unsigned(Reg.filter_interval_exhaust)
+        remaining = await self._read_holding_unsigned(Reg.filter_remaining_exhaust)
+        if interval is None or remaining is None:
+            return None
+        return max(0, interval - remaining)
+
+    async def get_filter_interval_inlet(self) -> int | None:
+        """Inlet filter interval in days (holding 1326)."""
+        return await self._read_holding_unsigned(Reg.filter_interval_inlet)
+
+    async def get_filter_interval_exhaust(self) -> int | None:
+        """Exhaust filter interval in days (holding 1327)."""
+        return await self._read_holding_unsigned(Reg.filter_interval_exhaust)
 
     async def get_filter_alarm_state(self) -> bool | None:
         """Filter alarm active (input 5168)."""

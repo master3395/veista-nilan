@@ -17,6 +17,11 @@ from .capabilities import (
 )
 from .device_map_cts700 import CTS700_ENTITY_MAP
 from .modbus_hub_util import build_modbus_hub_name, wait_for_modbus_connected
+from .register_probe import (
+    PROBE_SPECS,
+    deserialize_dead_registers,
+    run_register_probe,
+)
 from .registers import CTS700NewHoldingRegisters
 
 _LOGGER = logging.getLogger(__name__)
@@ -37,6 +42,7 @@ class DeviceCTS700:
         host_port,
         unit_id,
         hub_name: str | None = None,
+        stored_dead_registers: list | None = None,
     ) -> None:
         """Create CTS700 device."""
         self.hass = hass
@@ -68,6 +74,10 @@ class DeviceCTS700:
         self._attributes = {}
         self._board_type = "CTS700"
         self._capabilities = frozenset()
+        self._dead_registers: set[tuple[str, int]] = set()
+        self._unsupported_attributes: set[str] = set()
+        self._stored_dead_registers = stored_dead_registers
+        self._probe_ran = False
 
     async def async_close(self):
         """Close modbus connection."""
@@ -101,6 +111,38 @@ class DeviceCTS700:
         self._attributes = filter_attributes_by_capabilities(
             self._attributes, CTS700_ENTITY_MAP, caps
         )
+
+        if self._stored_dead_registers is not None:
+            try:
+                self._dead_registers = deserialize_dead_registers(
+                    self._stored_dead_registers
+                )
+            except (TypeError, ValueError):
+                _LOGGER.warning(
+                    "Stored dead-register data invalid; re-probing"
+                )
+                self._stored_dead_registers = None
+            if self._stored_dead_registers is not None:
+                self._unsupported_attributes = {
+                    attr
+                    for attr, regs in PROBE_SPECS["CTS700"].items()
+                    if all(
+                        (kind, address) in self._dead_registers
+                        for kind, address in regs
+                    )
+                }
+                _LOGGER.debug(
+                    "Loaded %d dead registers from stored config",
+                    len(self._dead_registers),
+                )
+        if self._stored_dead_registers is None:
+            try:
+                await run_register_probe(self, PROBE_SPECS["CTS700"])
+                self._probe_ran = True
+            except Exception:  # noqa: BLE001 — probe must never fail setup
+                _LOGGER.warning(
+                    "CTS700 register probe failed; continuing with core-only setup"
+                )
 
         outdoor = await self.get_t1_intake_temperature()
         if outdoor is not None:
@@ -144,8 +186,14 @@ class DeviceCTS700:
         """Return device attributes."""
         return self._attributes
 
+    def supports_attribute(self, name: str) -> bool:
+        """True when the probed registers for this attribute are alive."""
+        return name not in self._unsupported_attributes
+
     async def _read_holding(self, address: int) -> int | None:
         """Read one holding register as signed int."""
+        if ("holding", address) in self._dead_registers:
+            return None
         result = await self._modbus.async_pb_call(
             self._unit_id, address, 1, "holding"
         )
@@ -159,6 +207,8 @@ class DeviceCTS700:
 
     async def _read_holding_unsigned(self, address: int) -> int | None:
         """Read one holding register as unsigned int."""
+        if ("holding", address) in self._dead_registers:
+            return None
         result = await self._modbus.async_pb_call(
             self._unit_id, address, 1, "holding"
         )
