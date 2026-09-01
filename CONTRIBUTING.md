@@ -25,6 +25,15 @@ Do not open drive-by PRs against unrelated branches.
 - Accounts with write access should use MFA
 - Keep shared Lovelace under `dashboards/` **Nilan-only**
 
+## Register changes
+
+When adding or changing Modbus registers, update **all** of:
+
+1. [`custom_components/nilan/registers.py`](custom_components/nilan/registers.py)
+2. Matching device getter in `device*.py`
+3. [`register_probe.py`](custom_components/nilan/register_probe.py) `PROBE_SPECS` when the register is optional per firmware
+4. Matching [`modbus_yaml/`](modbus_yaml/) example file
+
 ## Before you open an issue
 
 1. Read previous [issues](https://github.com/veista/nilan/issues), [wiki](https://github.com/veista/nilan/wiki), [discussions](https://github.com/veista/nilan/discussions), and [release notes](https://github.com/veista/nilan/releases).

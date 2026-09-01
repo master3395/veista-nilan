@@ -52,12 +52,15 @@ Do **not** use this map on 2018+ Compact P units that use fan **21771** percent 
 | T9 water surface | 20298 holding | |
 | T11 / T12 DHW | 5162 / 5163 input | Scale 0.1 |
 | Filter alarm | 5168 input | Binary (Filtervagt) |
-| Filter days | 20103 holding | |
+| Filter interval inlet / exhaust | 1326 / 1327 holding | Service interval days |
+| Filter remaining inlet / exhaust | 1328 / 1329 holding | Days until change |
+| Filter days (alternate) | 20103 holding | May mirror 1328 on some firmware; **absent** on others (see issue #3) |
+| Days since change | 1326 − 1328 (inlet), 1327 − 1329 (exhaust) | Matches HMI "days since filter change" |
 | Op mode | 5432 holding | 0 off, 1 cool, 2 heat, 3 dehum, 4 DHW |
 | Anode | 4233 holding | |
 | Fan power % | 21771 holding | Readout; climate fan writes use 4747 steps |
 | Supply / extract fan % | 4699 / 4700 | |
-| DHW setpoint | 20460 | |
+| DHW setpoint | 5548 holding (legacy/hybrid), 20460 (2018+ map) | Probe; do not use 20460 if it reads as tank temp |
 
 External CO2 (accessory on SG A/B) stays out of this bus map unless you add a separate sensor.
 

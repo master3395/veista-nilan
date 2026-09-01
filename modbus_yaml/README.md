@@ -15,9 +15,29 @@ Reference / fallback Home Assistant **Modbus** YAML aligned with this fork’s P
 
 1. Replace `YOUR_HOST_IP` (and unit id if needed) before use.
 2. Load **only one** of these files for a given unit.
-3. Do **not** run YAML Modbus and the **Nilan** custom integration against the same unit at once.
-4. Prefer the Nilan board menu / Auto-detect in production; YAML is for bring-up or comparison.
-5. Keep YAML in sync with the matching Python register map when you change entities.
+3. Do **not** poll the same register from YAML Modbus and the **Nilan** integration on one unit. See **Dual-path guide** below.
+4. Prefer the Nilan board menu / Auto-detect in production; YAML is for bring-up, custom CTS tooling, or comparison.
+5. Keep YAML in sync with the matching Python register map and `register_probe.PROBE_SPECS` when you change entities.
+
+## Dual-path guide (integration + YAML)
+
+Use **one register truth** from a live probe (see `to-do/probe_registers.ps1` or integration setup probe):
+
+| Path | Best for |
+|------|----------|
+| **Nilan integration** (v1.3.13+) | Standard entities, auto probe, `dead_registers` persistence |
+| **YAML Modbus** | Custom automations, selftest scripts, registers not in the integration map |
+
+**Migration split (recommended on an existing YAML site):**
+
+1. Probe the unit once (PowerShell script in `to-do/` or add Nilan config entry).
+2. Upgrade Nilan via HACS to **1.3.13+**.
+3. **Comment out** YAML Modbus sensors/climates that duplicate integration entities (room, filter, fan, temps, DHW).
+4. Add Nilan config entry (TCP, board CTS700 Nordic or auto-detect). Probe stores `dead_registers`.
+5. Keep YAML for CTS Log selftest, event-log dump (10000+), and other custom reads only.
+6. Optional: `!include modbus_yaml/nilan_filter_templates.yaml` if you stay YAML-only for filters.
+
+**Filter registers (Nordic / hybrid firmware):** prefer **1326-1329** (interval + remaining). Template days-since = interval minus remaining. Register **20103** may mirror remaining on some units but is absent on others (issue #3).
 
 ## Era docs
 
