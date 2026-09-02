@@ -6,6 +6,8 @@ GitHub Releases: https://github.com/master3395/veista-nilan/releases
 
 | Version | Date | Summary | Notes |
 |---|---|---|---|
+| [1.3.14](1.3.14.md) | 02/09/2026 | CTS700 Nordic Modbus read stability + manual links | [Release](https://github.com/master3395/veista-nilan/releases/tag/v1.3.14) |
+| [1.3.13](1.3.13.md) | 16/08/2026 | Setup register probe + Nordic filter days | [Release](https://github.com/master3395/veista-nilan/releases/tag/v1.3.13) |
 | [1.3.12](1.3.12.md) | 14/08/2026 | VP 18comp (type 11) entity mapping (#234) | [Release](https://github.com/master3395/veista-nilan/releases/tag/v1.3.12) |
 | [1.3.11](1.3.11.md) | 14/08/2026 | Non-blocking setup + multi-unit unique IDs | [Release](https://github.com/master3395/veista-nilan/releases/tag/v1.3.11) |
 | [1.3.10](1.3.10.md) | 10/08/2026 | Config UX, hub coexistence, firmware field | [Release](https://github.com/master3395/veista-nilan/releases/tag/v1.3.10) |
