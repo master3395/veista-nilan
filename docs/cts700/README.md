@@ -38,6 +38,8 @@ Current integration version: **1.3.6**.
 
 Hardware drawings for Compact P Køl Polar/Nordic/Arctic XL: [hardware/](hardware/).
 
+Official Nilan PDF manuals are not stored in this repo. Download links: [../manuals.md](../manuals.md).
+
 ## Modbus YAML reference
 
 Per-board Home Assistant Modbus YAML (not universal): [`modbus_yaml/`](../../modbus_yaml/). Prefer the Nilan integration in production. Never run YAML and the integration on the same unit.

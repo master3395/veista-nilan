@@ -26,6 +26,7 @@ Years are **document / map eras**, not exact first-build dates.
 
 - [Hardware and connection](hardware.md)
 - [Installation](installation.md)
+- [Manufacturer manuals (official links)](manuals.md)
 - [Dashboards (Nilan only)](dashboards.md)
 - [FAQ](faq.md)
 - [Changelog (releases)](../changelog/README.md)
