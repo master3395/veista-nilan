@@ -581,8 +581,30 @@ class DeviceCTS700Nordic:
         """Filter alarm active (input 5168)."""
         value = await self._read_input_unsigned(Reg.filter_alarm)
         if value is None:
+            _LOGGER.warning(
+                "Filter alarm read failed (input %s). Keeping previous HA state; "
+                "check Ethernet Modbus load / overlapping YAML hub.",
+                Reg.filter_alarm,
+            )
             return None
-        return bool(value)
+        active = bool(value)
+        prev = self._attributes.get("filter_alarm_state")
+        if prev is not None and bool(prev) != active:
+            _LOGGER.info(
+                "Filter alarm changed: %s -> %s (raw=%s, input %s)",
+                "ON" if prev else "OFF",
+                "ON" if active else "OFF",
+                value,
+                Reg.filter_alarm,
+            )
+        elif active:
+            _LOGGER.debug(
+                "Filter alarm still ON (raw=%s, input %s)",
+                value,
+                Reg.filter_alarm,
+            )
+        self._attributes["filter_alarm_state"] = active
+        return active
 
     async def get_fan_speed_percent(self) -> int | None:
         """Fan power / max percent (21771)."""

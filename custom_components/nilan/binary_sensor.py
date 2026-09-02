@@ -212,4 +212,7 @@ class NilanCTS602BinarySensor(BinarySensorEntity, NilanEntity):
 
     async def async_update(self) -> None:
         """Fetch new state data for the binary sensor."""
-        self._attr_is_on = await getattr(self._device, self._attribute)()
+        value = await getattr(self._device, self._attribute)()
+        # Keep last known value on brief Modbus misses (avoids "unknown" flicker).
+        if value is not None:
+            self._attr_is_on = value
