@@ -91,10 +91,10 @@
                                                                    "name":  "Enhetsnavn",
                                                                    "host_port":  "Banesti",
                                                                    "unit_id":  "Enhets-ID"
-                                                               }
-                                                  }
-                            }
-               },
+              }
+          }
+      }
+  },
     "entity":  {
                    "binary_sensor":  {
                                          "compressor":  {
@@ -212,10 +212,10 @@
                                                                                               },
                                                                          "temperature":  {
                                                                                              "name":  "Måltemperatur"
-                                                                                         }
-                                                                     }
-                                            }
-                               },
+                  }
+              }
+          }
+      },
                    "number":  {
                                   "scalding_protection_setpoint":  {
                                                                        "name":  "Settpunkt for skåldebeskyttelse"

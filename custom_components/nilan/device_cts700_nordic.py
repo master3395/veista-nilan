@@ -9,6 +9,7 @@ Fan writes use holding 4747 with values 101-104. Do not mix with CTS700 2018+
 
 from __future__ import annotations
 
+import asyncio
 import logging
 
 from homeassistant.components.modbus import modbus
@@ -78,6 +79,9 @@ class DeviceCTS700Nordic:
             "stopbits": 1,
         }
         self._modbus = modbus.ModbusHub(self.hass, self._client_config)
+        # Serialize hub calls: many HA entities poll in parallel; CTS Ethernet
+        # drops overlapping requests (state "unknown" / glance spinners / NaN).
+        self._modbus_lock = asyncio.Lock()
         self._attributes = {}
         self._board_type = "CTS700_NORDIC"
         self._capabilities: frozenset[str] = frozenset()
@@ -193,13 +197,18 @@ class DeviceCTS700Nordic:
         """True when the probed registers for this attribute are alive."""
         return name not in self._unsupported_attributes
 
+    async def _pb_call(self, address: int, value, call_type: str):
+        """Single-flight Modbus call on this hub."""
+        async with self._modbus_lock:
+            return await self._modbus.async_pb_call(
+                self._unit_id, address, value, call_type
+            )
+
     async def _read_holding(self, address: int) -> int | None:
         """Read one holding register as signed int."""
         if ("holding", address) in self._dead_registers:
             return None
-        result = await self._modbus.async_pb_call(
-            self._unit_id, address, 1, "holding"
-        )
+        result = await self._pb_call(address, 1, "holding")
         if result is not None:
             return int.from_bytes(
                 result.registers[0].to_bytes(2, "little", signed=False),
@@ -212,9 +221,7 @@ class DeviceCTS700Nordic:
         """Read one holding register as unsigned int."""
         if ("holding", address) in self._dead_registers:
             return None
-        result = await self._modbus.async_pb_call(
-            self._unit_id, address, 1, "holding"
-        )
+        result = await self._pb_call(address, 1, "holding")
         if result is not None:
             return int.from_bytes(
                 result.registers[0].to_bytes(2, "little", signed=False),
@@ -227,9 +234,7 @@ class DeviceCTS700Nordic:
         """Read one input register as signed int."""
         if ("input", address) in self._dead_registers:
             return None
-        result = await self._modbus.async_pb_call(
-            self._unit_id, address, 1, "input"
-        )
+        result = await self._pb_call(address, 1, "input")
         if result is not None:
             return int.from_bytes(
                 result.registers[0].to_bytes(2, "little", signed=False),
@@ -242,9 +247,7 @@ class DeviceCTS700Nordic:
         """Read one input register as unsigned int."""
         if ("input", address) in self._dead_registers:
             return None
-        result = await self._modbus.async_pb_call(
-            self._unit_id, address, 1, "input"
-        )
+        result = await self._pb_call(address, 1, "input")
         if result is not None:
             return int.from_bytes(
                 result.registers[0].to_bytes(2, "little", signed=False),
@@ -259,14 +262,10 @@ class DeviceCTS700Nordic:
         Prefer FC6 write_register (HA Modbus climate default for setpoints).
         Fall back to FC16 write_registers (fan step 4747 accepts FC16).
         """
-        result = await self._modbus.async_pb_call(
-            self._unit_id, address, value, "write_register"
-        )
+        result = await self._pb_call(address, value, "write_register")
         if result is not None:
             return True
-        result = await self._modbus.async_pb_call(
-            self._unit_id, address, [value], "write_registers"
-        )
+        result = await self._pb_call(address, [value], "write_registers")
         if result is None:
             _LOGGER.error(
                 "CTS700 Nordic write failed address=%s value=%s (FC6 and FC16)",

@@ -3,3 +3,7 @@ __pycache__/
 .superpowers/
 tests/
 docs/superpowers/
+to-do/*.local.md
+to-do/live-site-*
+to-do/site-*
+to-do/register-probe-matrix.md

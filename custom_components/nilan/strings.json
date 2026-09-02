@@ -215,10 +215,10 @@
                                                                                               },
                                                                          "temperature":  {
                                                                                              "name":  "Target temperature"
-                                                                                         }
-                                                                     }
-                                            }
-                               },
+          }
+        }
+      }
+    },
                    "number":  {
                                   "scalding_protection_setpoint":  {
                                                                        "name":  "Scalding Protection Setpoint"

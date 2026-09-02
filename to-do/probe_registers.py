@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One-shot Modbus TCP register probe for CTS700 site CTS700 (issue #3 matrix)."""
+"""One-shot Modbus TCP register probe (issue #3 matrix). Example host: 192.168.1.50"""
 from __future__ import annotations
 
 import json
@@ -12,7 +12,7 @@ except ImportError:
     print("pymodbus required: pip install pymodbus", file=sys.stderr)
     sys.exit(1)
 
-HOST = "192.168.50.105"
+HOST = "192.168.1.50"
 PORT = 502
 UNIT = 1
 

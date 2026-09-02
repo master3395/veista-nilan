@@ -726,4 +726,8 @@ class NilanCTS602Sensor(SensorEntity, NilanEntity):
 
     async def async_update(self) -> None:
         """Fetch new state data for the sensor."""
-        self._attr_native_value = await getattr(self._device, self._attribute)()
+        value = await getattr(self._device, self._attribute)()
+        # Keep the last good reading when Modbus is briefly busy (dual hub, timeouts).
+        # Clearing to None surfaces as HA state "unknown" and glance/tile spinners.
+        if value is not None:
+            self._attr_native_value = value

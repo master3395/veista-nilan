@@ -1,9 +1,11 @@
-# Modbus TCP register probe for CTS700 site CTS700 (issue #3 matrix)
-$ErrorActionPreference = "Stop"
+# Modbus TCP register probe (issue #3 matrix). Example: -ModbusHost 192.168.1.50
+param(
+    [string]$ModbusHost = "192.168.1.50",
+    [int]$Port = 502,
+    [int]$UnitId = 1
+)
 
-$ModbusHost = "192.168.50.105"
-$Port = 502
-$UnitId = 1
+$ErrorActionPreference = "Stop"
 $TransactionId = 1
 
 $Registers = @(
@@ -126,9 +128,9 @@ Write-Output "PROBED_AT=$(Get-Date -Format 'dd/MM/yyyy HH:mm:ss')"
 Write-Output "HOST=$ModbusHost`:$Port UNIT=$UnitId ALIVE=$($alive.Count) DEAD=$($dead.Count)"
 $rows | Format-Table -AutoSize | Out-String -Width 200 | Write-Output
 
-$matrixPath = "to-do/cts700-site-register-matrix.md"
+$matrixPath = Join-Path $PSScriptRoot "register-probe-matrix.md"
 $md = @"
-# CTS700 site register probe matrix
+# CTS700 register probe matrix
 
 Probed: $(Get-Date -Format 'dd/MM/yyyy HH:mm:ss')  
 Host: $ModbusHost`:$Port · Unit ID: $UnitId
