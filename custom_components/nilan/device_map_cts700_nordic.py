@@ -41,6 +41,7 @@ CTS700_NORDIC_ENTITY_MAP = {
         "entity_type": "config",
         "requires_capabilities": "dhw",
     },
+    # Stay config (water_heater status only). Do not map Compact P 20464 as switch.
     "get_electric_water_heater_state": {
         "entity_type": "config",
         "requires_capabilities": "dhw",

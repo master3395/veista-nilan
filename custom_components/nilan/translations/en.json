@@ -950,6 +950,9 @@
                                   "supply_air_after_heating":  {
                                                                    "name":  "Supply Air After Heating"
                                                                },
+                                  "electrical_supplement_heater":  {
+                                                                       "name":  "Electrical supplement heater"
+                                                                   },
                                   "hps_main_switch":  {
                                                           "name":  "AIR/GEO Power"
                                                       }

@@ -28,7 +28,8 @@ Do **not** choose Nordic XL if fan is percent on **21771**. Nordic step fan (**4
 |---|---|---|
 | Room current | 20286 | Extract / room air. Do **not** use 20260 as current (~5 C wrong on installs like issue #19) |
 | Room setpoint | 20102 | Live-verified |
-| DHW | 20460 | |
+| DHW setpoint | 20460 | Shared Compact P DHW dial |
+| Electrical supplement heater | 20464 | R/W 0/1. Home Assistant **switch** (writable). DHW supplement only; not a bottom-tank 60 C command. Heat pump DHW still tops out around **55 C** at T12. Scalding protection is **20463**. |
 | Outdoor | 20282 | Scale 0.1 |
 | Supply | 20284 | Scale 0.1 |
 | Extract | 20286 | Scale 0.1 |
@@ -64,6 +65,7 @@ Fixes from that pass (v1.3.1): climate HVAC mode no longer stuck on `unknown` fo
 - Outdoor, supply, extract, after HEX / HP, evaporator temps
 - Humidity
 - DHW setpoint and tank temperatures
+- Electrical supplement heater switch (`switch.nilan_electrical_supplement_heater` when the device is named `Nilan`): holding **20464**
 - Days to air filter change
 
 ## Caveats
@@ -73,6 +75,7 @@ Fixes from that pass (v1.3.1): climate HVAC mode no longer stuck on `unknown` fo
 - Avoid multiple Home Assistant pollers against the same CTS700
 - PDF labels can differ from live Compact P setpoints
 - Operating mode register `20120` is not a full CTS602-style heat/cool/auto enum on every Compact P; UI may show Auto when the raw value is unmapped
+- **20464** enables the electrical DHW supplement heater. It does not tell the heat pump to heat the tank bottom to 60 C. Scalding limit is **20463**. CTS602 still uses output **116** (`output_water_heat`) as status only.
 
 ## Not this guide
 

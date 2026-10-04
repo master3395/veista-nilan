@@ -888,6 +888,9 @@
                                   "supply_air_after_heating":  {
                                                                    "name":  "Tilluft etter oppvarming"
                                                                },
+                                  "electrical_supplement_heater":  {
+                                                                       "name":  "Elektrisk tilleggsvarme (VV)"
+                                                                   },
                                   "hps_main_switch":  {
                                                           "name":  "AIR/GEO strøm"
                                                       }

@@ -651,3 +651,11 @@ class DeviceCTS700Nordic:
     async def get_electric_water_heater_state(self) -> bool | None:
         """No dedicated el-supplement bit in community map; always False."""
         return False
+
+    async def set_electric_water_heater_state(self, value: bool | int) -> bool:
+        """Do not write Compact P 2018 holding 20464 on the Nordic hybrid map."""
+        _LOGGER.warning(
+            "Electrical supplement heater write is not mapped on CTS700 Nordic "
+            "(holding 20464 is Compact P 2018 only)"
+        )
+        return False

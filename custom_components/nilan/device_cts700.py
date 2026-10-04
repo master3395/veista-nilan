@@ -429,7 +429,7 @@ class DeviceCTS700:
         )
 
     async def get_electric_water_heater_state(self) -> bool | None:
-        """Electrical supplement heater active."""
+        """Electrical supplement heater (holding 20464, 0/1)."""
         value = await self._read_holding_unsigned(
             CTS700NewHoldingRegisters.electrical_supplement_heater
         )
@@ -437,3 +437,10 @@ class DeviceCTS700:
             _LOGGER.error("Could not read get_electric_water_heater_state")
             return None
         return bool(value)
+
+    async def set_electric_water_heater_state(self, value: bool | int) -> None:
+        """Write electrical supplement heater holding 20464 (0/1)."""
+        on = 1 if value else 0
+        await self._write_holding(
+            CTS700NewHoldingRegisters.electrical_supplement_heater, on
+        )

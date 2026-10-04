@@ -48,6 +48,8 @@ Allowlist:
 
 Never auto-write DHW over Ethernet dial, cameras, locks, installer auth, or invented Modbus registers.
 
+Compact P **2018** electrical supplement heater (`switch.nilan_electrical_supplement_heater`, holding **20464**) is **not** on this Nordic board path. Do not auto-write 20464 from these packages.
+
 Thermal lag defaults: **3 h** sense-ahead, **2.5 h** write hold, example flat **60 m2**, preferred room **22 to 23 C** (mål 22.5).
 
 ## Requirements

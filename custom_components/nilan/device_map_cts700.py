@@ -29,7 +29,7 @@ CTS700_ENTITY_MAP = {
         "requires_capabilities": "dhw",
     },
     "get_electric_water_heater_state": {
-        "entity_type": "config",
+        "entity_type": "switch",
         "requires_capabilities": "dhw",
     },
     "get_compressor_water_heater_setpoint": {

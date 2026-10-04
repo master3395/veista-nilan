@@ -25,6 +25,17 @@ ATTRIBUTE_TO_SWITCHES = {
             "mdi:radiator",
         )
     ],
+    "get_electric_water_heater_state": [
+        Map(
+            "electrical_supplement_heater",
+            "set_electric_water_heater_state",
+            EntityCategory.CONFIG,
+            0,
+            1,
+            "mdi:heating-coil",
+            "mdi:heating-coil",
+        )
+    ],
     "get_hps_main_switch": [
         Map(
             "hps_main_switch",
