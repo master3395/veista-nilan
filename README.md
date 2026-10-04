@@ -24,7 +24,7 @@ Ship CTS700 Compact P eras (2015 / Nordic XL / 2018+) beside stable CTS602, docu
 - [Marketing aliases](docs/catalog/aliases.md)
 - [Compact P XL Nordic hub](docs/catalog/compact-p-xl-nordic.md)
 
-**CTS700 maps:** era matrix in [cts700 README](docs/cts700/README.md). **2018+** 20xxx ([compact-p](docs/cts700/compact-p.md)), **Nordic XL** hybrid ([compact-p-nordic-xl](docs/cts700/compact-p-nordic-xl.md)), **2015** under 10000 ([legacy-2015](docs/cts700/legacy-2015.md)). Per-board Modbus YAML: [`modbus_yaml/`](modbus_yaml/). **Compact P2** prefers CTS602 ([compact-p2](docs/cts602/compact-p2.md)).
+**CTS700 maps:** era matrix in [cts700 README](docs/cts700/README.md). **2018+** 20xxx ([compact-p](docs/cts700/compact-p.md)), **Nordic XL** hybrid ([compact-p-nordic-xl](docs/cts700/compact-p-nordic-xl.md)), **2015** under 10000 ([legacy-2015](docs/cts700/legacy-2015.md)). Per-board Modbus YAML: [`modbus_yaml/`](modbus_yaml/). **Compact P2** prefers CTS602 ([compact-p2](docs/cts602/compact-p2.md)). Optional lag-aware 24/7 helpers: [CTS700 AI packages](docs/cts700-ai/README.md).
 
 ### Install from this fork (HACS custom repository)
 

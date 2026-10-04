@@ -40,6 +40,8 @@ Hardware drawings for Compact P Køl Polar/Nordic/Arctic XL: [hardware/](hardwar
 
 Official Nilan PDF manuals are not stored in this repo. Download links: [../manuals.md](../manuals.md).
 
+Optional Home Assistant 24/7 helpers (packages, not HACS): [../cts700-ai/README.md](../cts700-ai/README.md).
+
 ## Modbus YAML reference
 
 Per-board Home Assistant Modbus YAML (not universal): [`modbus_yaml/`](../../modbus_yaml/). Prefer the Nilan integration in production. Never run YAML and the integration on the same unit.

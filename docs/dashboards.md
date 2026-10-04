@@ -22,6 +22,8 @@ These examples live in [`dashboards/`](../dashboards/) and contain **only Nilan*
 
 Advanced users can include the view YAML under a Lovelace dashboard configuration. Prefer the UI raw editor if you use storage mode dashboards.
 
+Optional 24/7 comfort helpers (not required for the integration): [CTS700 AI](cts700-ai/README.md). Lovelace snippets there use generic dashboard paths such as `/nilan-compact-p/`.
+
 ## Scope rules
 
 - Nilan ventilation, DHW, filters, setpoints, and related integration entities only

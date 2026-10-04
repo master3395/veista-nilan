@@ -28,6 +28,7 @@ Years are **document / map eras**, not exact first-build dates.
 - [Installation](installation.md)
 - [Manufacturer manuals (official links)](manuals.md)
 - [Dashboards (Nilan only)](dashboards.md)
+- [CTS700 AI packages (optional)](cts700-ai/README.md)
 - [FAQ](faq.md)
 - [Changelog (releases)](../changelog/README.md)
 
